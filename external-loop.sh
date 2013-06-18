@@ -6,7 +6,7 @@
 #Delay time between the experiments in seconds
 DEFAULT_SLEEP_TIME=60
 BASE_DIR=`pwd`
-W_PORT="/dev/ttyUSB1"
+W_PORT="/dev/ttyUSB2"
 
 #available CPU frequencies
 cpu_freqs=(2400000 2133000 1867000 1600000)
@@ -111,7 +111,7 @@ transpose()
 commit()
 {
    echo "`git add .`"
-   echo "`git commit -am 'experiment cpu frequency:$1, sleep time:$2, matrix size:$3'`"
+   echo "`git commit -am "experiment cpu frequency:$1, sleep time:$2, matrix size:$3"`"
    echo "`git push origin master`"
 }
 
