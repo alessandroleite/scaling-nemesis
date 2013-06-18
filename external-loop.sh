@@ -57,12 +57,15 @@ initialize()
   done
 }
 
-#Changes the CPU's frequency
+#Changes the CPU's frequency. The argument is the CPU frequency to be set.
 set_cpu_freq()
 {
   echo "`cpupower frequency-set -f $1`"
 }
 
+#
+# Creates the output directory. The arguments are: cpu frequency, matrix size, and the sleep time.
+#
 create_data_dir()
 {
   FILE="$BASE_DIR/results/"
@@ -82,13 +85,13 @@ create_data_dir()
   fi
 }
 
-#starts the power meter logging. The arguments are: cpu frequency, sleep time, and the matrix size 
+#starts the power meter logging. The arguments are: cpu frequency, matrix size, and the sleep time.
 start_meter_logging()
 {
 	if [ "$w_pid" -eq "0" ] 		
 	then
 		create_data_dir $1 $2 $3
-		output_file="$BASE_DIR/results/$1/$3_$2.csv"
+		output_file="$BASE_DIR/results/$1/$2_$3.csv"
 		eval "(java -cp .:$BASE_DIR/lib/wattsupj-1.0.0-SNAPSHOT.jar -Dexport.file.path=$output_file wattsup.console.Console $W_PORT) &"
 		w_pid=$!
 	fi
@@ -96,11 +99,10 @@ start_meter_logging()
   return $w_pid
 }
 
-#Executes the matrix transposition. The arguments are: sleep time, the matrix size
+#Executes the matrix transposition. The arguments are: matrix size, and the sleep time.
 transpose()
 {
-  #eval "($BASE_DIR/bin/mtranspose $2 $1) & wait %1"
-  "`$BASE_DIR/bin/mtranspose $2 $1`"
+  "`$BASE_DIR/bin/mtranspose $1 $2`"
   PID=$!  
   return $PID
 }
@@ -123,7 +125,7 @@ finish_meter_logging()
     w_pid="0"    
 }
 
-# executes an experiment. The required arguments are: cpu frequency, sleep time, and the matrix size.
+# executes an experiment. The required arguments are: cpu frequency, matrix size, and the sleep time.
 run_experiment()
 {
   set_cpu_freq $1 & wait
