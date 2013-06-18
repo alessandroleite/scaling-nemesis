@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ##################################################################
-# 			Global Variables 			 #
+#						Global Variables						 #
 ##################################################################
 #Delay time between the experiments in seconds
 DEFAULT_SLEEP_TIME=60
@@ -63,26 +63,28 @@ set_cpu_freq()
   echo "`cpupower frequency-set -f $1`"
 }
 
+create_dir_if_not_exists()
+{
+  if [[ ! -a $1 ]];
+  then 
+    mkdir $1
+  fi
+}
+
 #
 # Creates the output directory. The arguments are: cpu frequency, matrix size, and the sleep time.
 #
 create_data_dir()
 {
-  FILE="$BASE_DIR/results/"
+   FILE="$BASE_DIR/results/"
 
-  echo "$FILE"
+   create_if_not_exists $FILE
 
-  if [[ ! -a $FILE ]];
-  then 
-    mkdir $FILE
-  fi  
+   FILE="$FILE/$1"
+   create_if_not_exists $FILE
 
-  FILE="$FILE/$1"
-
-  if [[ ! -a $FILE ]];
-  then
-    mkdir $FILE
-  fi
+   FILE="$FILE/$2"
+   create_if_not_exists $FILE
 }
 
 #starts the power meter logging. The arguments are: cpu frequency, matrix size, and the sleep time.
@@ -138,11 +140,11 @@ experiments()
 {
   for ((i=0; i < l_freqs; i++))
   do
-     for ((j=0; j < l_sizes; j++))
+     for ((k = 0; k < l_times; k++)) 
      do
-       for ((k = 0; k < l_times; k++))
+       for ((j=0; j < l_sizes; j++))
        do
-	  echo "f:${cpu_freqs[i]} m:${m_sizes[j]} t:${s_times[k]}"
+	      echo "f:${cpu_freqs[i]} m:${m_sizes[j]} t:${s_times[k]}"
           run_experiment ${cpu_freqs[i]} ${m_sizes[j]} ${s_times[k]}
           sleep $DEFAULT_SLEEP_TIME
           finish_meter_logging
