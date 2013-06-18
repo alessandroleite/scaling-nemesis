@@ -147,7 +147,7 @@ experiments()
           sleep $DEFAULT_SLEEP_TIME
           finish_meter_logging
           wait
-          commit
+          commit ${cpu_freqs[i]} ${m_sizes[j]} ${s_times[k]}
        done
      done
   done
