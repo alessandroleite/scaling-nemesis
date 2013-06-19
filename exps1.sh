@@ -1,14 +1,17 @@
 #!/bin/bash
 
 ##################################################################
-#						Global Variables						 #
+#		        Global Variables			 #
 ##################################################################
 SLEEP_TIME_BETWEEN_EXPERIMENTS_IN_SECONDS=60
-METER_SERIAL_PORT=$1
+SERIAL_PORT=$1
+BASE_DIR=`pwd`
 
-times=(5 10 15)
-sizes=(10 20 30)
-freqs=(2400000 2133000 1867000 1600000)
+#five, ten and fifteen minutes
+times=(300 600 900)
+sizes=(10000 20000 30000)
+freqs=(2400000 2133000 1600000)
+#freqs=(2400000 2133000 1867000 1600000)
 
 declare w_pid=0
 
@@ -52,13 +55,13 @@ create_data_dir()
 {
    FILE="$BASE_DIR/results/"
 
-   create_if_not_exists $FILE
+   create_dir_if_not_exists $FILE
 
    FILE="$FILE/$1"
-   create_if_not_exists $FILE
+   create_dir_if_not_exists $FILE
 
    FILE="$FILE/$2"
-   create_if_not_exists $FILE
+   create_dir_if_not_exists $FILE
 }
 
 #starts the power meter logging. The arguments are: cpu frequency, matrix size, and the sleep time.
@@ -67,8 +70,8 @@ start_meter_logging()
 	if [ "$w_pid" -eq "0" ] 		
 	then
 		create_data_dir $1 $2 $3
-		output_file="$BASE_DIR/results/$1/$2_$3.csv"
-		eval "(java -cp .:$BASE_DIR/lib/wattsupj-1.0.0-SNAPSHOT.jar -Dexport.file.path=$output_file wattsup.console.Console $W_PORT) &"
+		output_file="$BASE_DIR/results/$1/$2/$3.csv"
+		eval "(java -cp .:$BASE_DIR/lib/wattsupj-1.0.0-SNAPSHOT.jar -Dexport.file.path=$output_file wattsup.console.Console $SERIAL_PORT) &"
 		w_pid=$!
 	fi
   echo "w_pid -> $w_pid"
@@ -78,7 +81,7 @@ start_meter_logging()
 #Executes the matrix transposition. The arguments are: matrix size, and the sleep time.
 transpose()
 {
-  "`$BASE_DIR/bin/mtranspose $1 $2`"
+  "`$BASE_DIR/bin/mtranspose $1 $1 $2 1`"
   PID=$!  
   return $PID
 }
@@ -115,7 +118,7 @@ experiments()
      do
        for ((j=0; j < l_sizes; j++))
        do
-	      echo "f:${freqs[i]} m:${sizes[j]} t:${times[k]}"
+	  echo "f:${freqs[i]} m:${sizes[j]} t:${times[k]}"
           run_experiment ${freqs[i]} ${sizes[j]} ${times[k]}
           sleep $SLEEP_TIME_BETWEEN_EXPERIMENTS_IN_SECONDS
           finish_meter_logging
