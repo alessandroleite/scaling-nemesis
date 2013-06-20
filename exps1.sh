@@ -1,21 +1,24 @@
 #!/bin/bash
 
 ##################################################################
-#		        Global Variables			 					 #
+#		        Global Variables			 #
 ##################################################################
 SLEEP_TIME_BETWEEN_EXPERIMENTS_IN_SECONDS=60
 SERIAL_PORT=$1
 BASE_DIR=`pwd`
 
-freqs=(2400000 2133000 1600000)
-sizes=(10000 20000 30000)
+#freqs=(2400000 2133000 1600000)
+freqs=(2400000)
+#sizes=(10000 20000 30000)
+sizes=(30000)
 #five, ten and fifteen minutes
-times=(300 600 900)
+#times=(300 600 900)
+times=(300 600)
 
 #freqs=(2400000 2133000 1867000 1600000)
 
 declare w_pid=0
-
+declare n_iter=1
 
 echo "   Time values: ${times[*]}"
 echo "  Matrix sizes: ${sizes[*]}"
@@ -50,7 +53,7 @@ create_dir_if_not_exists()
 }
 
 #
-# Creates the output directory. The arguments are: cpu frequency, matrix size, and the sleep time.
+# Creates the output directory. The arguments are: cpu frequency, matrix size, the sleep time, and the number of iterations.
 #
 create_data_dir()
 {
@@ -63,15 +66,19 @@ create_data_dir()
 
    FILE="$FILE/$2"
    create_dir_if_not_exists $FILE
+
+   FILE="$FILE/$4"
+   create_dir_if_not_exists $FILE
+
 }
 
-#starts the power meter logging. The arguments are: cpu frequency, matrix size, and the sleep time.
+#starts the power meter logging. The arguments are: cpu frequency, matrix size, sleep time and the number of iterations.
 start_meter_logging()
 {
 	if [ "$w_pid" -eq "0" ] 		
 	then
-		create_data_dir $1 $2 $3
-		output_file="$BASE_DIR/results/$1/$2/$3.csv"
+		create_data_dir $1 $2 $3 $4
+		output_file="$BASE_DIR/results/$1/$2/$4/$3.csv"
 		eval "(java -cp .:$BASE_DIR/lib/wattsupj-1.0.0-SNAPSHOT.jar -Dexport.file.path=$output_file wattsup.console.Console $SERIAL_PORT) &"
 		w_pid=$!
 	fi
@@ -79,10 +86,10 @@ start_meter_logging()
   return $w_pid
 }
 
-#Executes the matrix transposition. The arguments are: matrix size, and the sleep time.
+#Executes the matrix transposition. The arguments are: matrix size, the sleep time, and the number of iterations.
 transpose()
 {
-  "`$BASE_DIR/bin/mtranspose $1 $1 $2 1`"
+  "`$BASE_DIR/bin/mtranspose $1 $1 $2 $3`"
   PID=$!  
   return $PID
 }
@@ -102,12 +109,12 @@ finish_meter_logging()
     w_pid="0"    
 }
 
-# executes an experiment. The arguments are: cpu frequency, matrix size, and the sleep time.
+# executes an experiment. The arguments are: cpu frequency, matrix size, the sleep time, and the number of iterations.
 run_experiment()
 {
   set_cpu_freq $1 & wait
-  start_meter_logging $1 $2 $3
-  transpose $2 $3
+  start_meter_logging $1 $2 $3 $4
+  transpose $2 $3 $4
 }
 
 #Executes the experiments.
@@ -118,13 +125,13 @@ experiments()
      for ((k = 0; k < l_times; k++)) 
      do
        for ((j=0; j < l_sizes; j++))
-       do
+       do 
 	  echo "f:${freqs[i]} m:${sizes[j]} t:${times[k]}"
-          run_experiment ${freqs[i]} ${sizes[j]} ${times[k]}
+          run_experiment ${freqs[i]} ${sizes[j]} ${times[k]} $n_iter
           sleep $SLEEP_TIME_BETWEEN_EXPERIMENTS_IN_SECONDS
           finish_meter_logging
           wait
-          commit ${freqs[i]} ${sizes[j]} ${times[k]}
+          commit ${freqs[i]} ${sizes[j]} ${times[k]} $n_iter
        done
      done
   done
