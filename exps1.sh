@@ -18,7 +18,7 @@ times=(300 600)
 #freqs=(2400000 2133000 1867000 1600000)
 
 declare w_pid=0
-declare n_iter=1
+declare n_iter=10
 
 echo "   Time values: ${times[*]}"
 echo "  Matrix sizes: ${sizes[*]}"
