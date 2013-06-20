@@ -1,16 +1,17 @@
 #!/bin/bash
 
 ##################################################################
-#		        Global Variables			 #
+#		        Global Variables			 					 #
 ##################################################################
 SLEEP_TIME_BETWEEN_EXPERIMENTS_IN_SECONDS=60
 SERIAL_PORT=$1
 BASE_DIR=`pwd`
 
+freqs=(2400000 2133000 1600000)
+sizes=(10000 20000 30000)
 #five, ten and fifteen minutes
 times=(300 600 900)
-sizes=(10000 20000 30000)
-freqs=(2400000 2133000 1600000)
+
 #freqs=(2400000 2133000 1867000 1600000)
 
 declare w_pid=0
