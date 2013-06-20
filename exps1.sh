@@ -9,8 +9,7 @@ BASE_DIR=`pwd`
 
 #freqs=(2400000 2133000 1600000)
 freqs=(2400000)
-#sizes=(10000 20000 30000)
-sizes=(30000)
+sizes=(10000 20000 30000)
 #five, ten and fifteen minutes
 #times=(300 600 900)
 times=(300 600)
