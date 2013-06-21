@@ -53,11 +53,11 @@ void transpose(void *src, int n)
 	src = m;
 }
 
-void initialize (int argc, char **argv, int *h, int *w, int *t, int *it)
+void initialize (int argc, char **argv, int *h, int *w, int *t, int *it/*, int *pid*/)
 {
 	if (argc < 5) 
 	{
-		printf("Usage <number of rows> <number of columns> <sleep time in seconds> <number of iteractions>\n");
+		printf("Usage <number of rows> <number of columns> <sleep time in seconds> <number of iteractions> <meter's id>\n");
 		exit(-1);
 	} 
 	else 
@@ -85,6 +85,12 @@ void initialize (int argc, char **argv, int *h, int *w, int *t, int *it)
 			printf("Number of iterations scanf failed.\n");
 			exit(-1);
 		}
+
+		/*if (sscanf(argv[5], "%d", pid) != 1) 
+		{
+			printf("Meter pid scanf failed.\n");
+			exit(-1);
+		}*/
 	}
 }
 
@@ -94,9 +100,9 @@ int main(int argc, char **argv)
 	long s = 0;
 
 	int *m;
-	int i, j, it;
+	int i, j, it,pid;
 
-	initialize(argc, argv, &h, &w, &t, &it);
+	initialize(argc, argv, &h, &w, &t, &it/*,&pid*/);
 	
 	m = malloc(h * w * sizeof(int));	
 	
@@ -106,11 +112,12 @@ int main(int argc, char **argv)
 	sleep(t);
 	printf("I am awake\n");
 
-    while (it > 0)
+	while (it > 0)
 	{
 		transpose(m,h);
 		it--;
 	}
+
 	free(m);
 }
 
