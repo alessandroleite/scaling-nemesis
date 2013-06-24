@@ -19,7 +19,7 @@ echo
 
 sleep 10
 
-echo "The same as the script 1 but with the data in descending order."
+echo "The same as the script 3 but with the data in descending order."
 echo "`$BASE_DIR/exps5.sh $SERIAL_PORT`"
 echo "`date`"
 echo
