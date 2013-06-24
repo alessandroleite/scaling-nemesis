@@ -3,17 +3,15 @@
 ##################################################################
 #		        Global Variables			 #
 ##################################################################
-SLEEP_TIME_BETWEEN_EXPERIMENTS_IN_SECONDS=60
+SIXTY_SECONDS=60
 SERIAL_PORT=$1
 BASE_DIR=`pwd`
 NOW="`date +"%Y-%m-%d_%H-%M"`"
 
-freqs=(2400000 2133000 1600000)
+freqs=(2400000 2133000 1867000 1600000)
 sizes=(30000 20000 10000)
 #five, ten and fifteen minutes
 times=(300 600 900)
-
-#freqs=(2400000 2133000 1867000 1600000)
 
 declare w_pid=0
 declare n_iter=10
@@ -56,7 +54,8 @@ create_dir_if_not_exists()
 #
 create_data_dir()
 {
-   #NOW="`date +"%Y-%m-%d_%H-%M"`"
+#   NOW="`date +"%Y-%m-%d_%H-%M"`"
+    #NOW="`date +"%Y-%m-%d"`"
 
    FILE="$BASE_DIR/results/"
    create_dir_if_not_exists $FILE
@@ -85,18 +84,19 @@ start_meter_logging()
 		w_pid=$!
 	fi
   echo "w_pid -> $w_pid"
+  sleep $SIXTY_SECONDS
   return $w_pid
 }
 
-#Executes the matrix transposition. The arguments are: matrix size, the sleep time, and the number of iterations.
+#Executes the matrix transposition. The arguments are: matrix size, the sleep time, number of iterations and the meter's pid.
 transpose()
 {
-  "`$BASE_DIR/bin/mtranspose $1 $1 $2 $3`"
+  echo "`$BASE_DIR/bin/mtranspose $1 $1 $2 $3 $4`"
   PID=$!  
   return $PID
 }
 
-#Commits the results and send them to the remote repository.
+#Commits the results and push to remote repository.
 commit()
 {
    echo "`git add .`"
@@ -111,15 +111,23 @@ finish_meter_logging()
     w_pid="0"    
 }
 
-# executes an experiment. The arguments are: cpu frequency, matrix size, the sleep time, and the number of iterations.
-run_experiment()
+flush()
+{
+	sleep $SIXTY_SECONDS
+	sync
+	sleep $SIXTY_SECONDS
+	sync
+}
+
+# Configures the frequency of the CPU and connect to the power meter to record the energy consumption every each one second. 
+# The arguments are: cpu frequency, matrix size, the sleep time, and the number of iterations.
+configure_environment()
 {
   set_cpu_freq $1 & wait
   start_meter_logging $1 $2 $3 $4
-  transpose $2 $3 $4
 }
 
-#Executes the experiments.
+#
 experiments()
 {
   for ((i=0; i < l_freqs; i++))
@@ -128,9 +136,14 @@ experiments()
      do
        for ((j=0; j < l_sizes; j++))
        do 
-	  echo "f:${freqs[i]} m:${sizes[j]} t:${times[k]}"
-          run_experiment ${freqs[i]} ${sizes[j]} ${times[k]} $n_iter
-          sleep $SLEEP_TIME_BETWEEN_EXPERIMENTS_IN_SECONDS
+          configure_environment ${freqs[i]} ${sizes[j]} ${times[k]} $n_iter 
+          for ((l=0; l < n_iter; l++))	
+          do      
+             echo "f:${freqs[i]} m:${sizes[j]} t:${times[k]} iter:${l} `date +"%Y-%m-%d %H:%M:%S"`"
+	     transpose ${sizes[j]} ${times[k]} 1 ${w_pid}
+             echo "`date +"%Y-%m-%d %H:%M:%S"`"
+          done
+          flush
           finish_meter_logging
           wait
           commit ${freqs[i]} ${sizes[j]} ${times[k]} $n_iter

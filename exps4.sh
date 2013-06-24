@@ -3,20 +3,18 @@
 ##################################################################
 #		        Global Variables			 #
 ##################################################################
-SLEEP_TIME_BETWEEN_EXPERIMENTS_IN_SECONDS=60
+SIXTY_SECONDS=60
 SERIAL_PORT=$1
 BASE_DIR=`pwd`
 NOW="`date +"%Y-%m-%d_%H-%M"`"
 
-freqs=(2400000 2133000 1600000)
-sizes=(30000 20000 10000)
-#five, ten and fifteen minutes
-times=(300 600 900)
-
-#freqs=(2400000 2133000 1867000 1600000)
+freqs=(2400000)
+sizes=(30000)
+#twelve hours in 
+times=(43200)
 
 declare w_pid=0
-declare n_iter=10
+declare n_iter=1
 
 echo "   Time values: ${times[*]}"
 echo "  Matrix sizes: ${sizes[*]}"
@@ -56,7 +54,8 @@ create_dir_if_not_exists()
 #
 create_data_dir()
 {
-   #NOW="`date +"%Y-%m-%d_%H-%M"`"
+#   NOW="`date +"%Y-%m-%d_%H-%M"`"
+   #NOW="`date +"%Y-%m-%d"`"
 
    FILE="$BASE_DIR/results/"
    create_dir_if_not_exists $FILE
@@ -91,7 +90,7 @@ start_meter_logging()
 #Executes the matrix transposition. The arguments are: matrix size, the sleep time, and the number of iterations.
 transpose()
 {
-  "`$BASE_DIR/bin/mtranspose $1 $1 $2 $3`"
+  echo "`$BASE_DIR/bin/mtranspose $1 $1 $2 $3 $4`"
   PID=$!  
   return $PID
 }
@@ -111,32 +110,32 @@ finish_meter_logging()
     w_pid="0"    
 }
 
+flush()
+{
+	sleep $SIXTY_SECONDS
+	sync
+	sleep $SIXTY_SECONDS 
+	sync
+}
+
 # executes an experiment. The arguments are: cpu frequency, matrix size, the sleep time, and the number of iterations.
-run_experiment()
+configure_environment()
 {
   set_cpu_freq $1 & wait
   start_meter_logging $1 $2 $3 $4
-  transpose $2 $3 $4
 }
 
-#Executes the experiments.
-experiments()
+# Set the CPU frequency to 2400000; fill up a matrix, sleep during 12 hours and transpose the matrix one time.
+execute()
 {
-  for ((i=0; i < l_freqs; i++))
-  do
-     for ((k = 0; k < l_times; k++)) 
-     do
-       for ((j=0; j < l_sizes; j++))
-       do 
-	  echo "f:${freqs[i]} m:${sizes[j]} t:${times[k]}"
-          run_experiment ${freqs[i]} ${sizes[j]} ${times[k]} $n_iter
-          sleep $SLEEP_TIME_BETWEEN_EXPERIMENTS_IN_SECONDS
-          finish_meter_logging
-          wait
-          commit ${freqs[i]} ${sizes[j]} ${times[k]} $n_iter
-       done
-     done
-  done
+    configure_environment ${freqs[0]} ${sizes[0]} ${times[0]} $n_iter 
+    echo "f:${freqs[0]} m:${sizes[0]} t:${times[0]} iter:$n_iter `date +"%Y-%m-%d %H:%M:%S"`"
+    transpose ${sizes[0]} ${times[0]} $n_iter ${w_pid}
+    echo "`date +"%Y-%m-%d %H:%M:%S"`"
+    flush
+    finish_meter_logging
+    wait
+    commit ${freqs[i]} ${sizes[j]} ${times[k]} $n_iter       
 }
 
 l_times=${#times[@]}
@@ -147,6 +146,6 @@ echo "CPU frequencies: ${freqs[*]}"
 echo  "Matrices sizes: ${sizes[*]}"
 echo  "  Times values: ${times[*]}"
 
-experiments 
+execute 
 
 echo "That's all folks!"
