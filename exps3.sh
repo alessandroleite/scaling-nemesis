@@ -8,6 +8,9 @@ SERIAL_PORT=$1
 BASE_DIR=`pwd`
 NOW="`date +"%Y-%m-%d_%H-%M"`"
 
+EXP_NAME="external-loop"
+SCRIPT_NAME="${0##*/}"
+
 freqs=(2400000 2133000 1867000 1600000)
 sizes=(30000 20000 10000)
 #five, ten and fifteen minutes
@@ -50,17 +53,17 @@ create_dir_if_not_exists()
 
 #
 # Creates the output directory. The arguments are: cpu frequency, matrix size, the sleep time, and the number of iterations.
-# The output is: $BASE_DIR/results/$date/$iteration/$cpu_frequency/$matriz_size, where date is the current date and time in the following format: yyyy-mm-dd_HH-MM.
+# The output is: $BASE_DIR/results/$EXP_NAME/$date/$iteration/$cpu_frequency/$matriz_size, where date is the current date and time in the following format: yyyy-mm-dd_HH-MM.
 #
 create_data_dir()
 {
-#   NOW="`date +"%Y-%m-%d_%H-%M"`"
-    #NOW="`date +"%Y-%m-%d"`"
-
    FILE="$BASE_DIR/results/"
    create_dir_if_not_exists $FILE
 
-   FILE="$BASE_DIR/results/$NOW/"
+   FILE="$FILE/$EXP_NAME"
+   create_dir_if_not_exists $FILE
+
+   FILE="$FILE/$NOW/"
    create_dir_if_not_exists $FILE
 
    FILE="$FILE/$4"
@@ -79,7 +82,7 @@ start_meter_logging()
 	if [ "$w_pid" -eq "0" ] 		
 	then
 		create_data_dir $1 $2 $3 $4
-		output_file="$BASE_DIR/results/$NOW/$4/$1/$2/$3.csv"
+		output_file="$BASE_DIR/results/$EXP_NAME/$NOW/$4/$1/$2/$3.csv"
 		eval "(java -cp .:$BASE_DIR/lib/wattsupj-1.0.0-SNAPSHOT.jar -Dexport.file.path=$output_file wattsup.console.Console $SERIAL_PORT) &"
 		w_pid=$!
 	fi
@@ -100,7 +103,7 @@ transpose()
 commit()
 {
    echo "`git add .`"
-   echo "`git commit -am "experiment cpu frequency:$1, sleep time:$2, matrix size:$3,$4"`"
+   echo "`git commit -am "experiment($SCRIPT_NAME) cpu frequency:$1, sleep time:$2, matrix size:$3,$4"`"
    echo "`git push origin master`"
 }
 
@@ -139,9 +142,9 @@ experiments()
           configure_environment ${freqs[i]} ${sizes[j]} ${times[k]} $n_iter 
           for ((l=0; l < n_iter; l++))	
           do      
-             echo "f:${freqs[i]} m:${sizes[j]} t:${times[k]} iter:${l} `date +"%Y-%m-%d %H:%M:%S"`"
+             echo "$SCRIPT_NAME-f:${freqs[i]} m:${sizes[j]} t:${times[k]} iter:${l} `date +"%Y-%m-%d %H:%M:%S"`"
 	     transpose ${sizes[j]} ${times[k]} 1 ${w_pid}
-             echo "`date +"%Y-%m-%d %H:%M:%S"`"
+             echo "$SCRIPT_NAME: `date +"%Y-%m-%d %H:%M:%S"`"
           done
           flush
           finish_meter_logging

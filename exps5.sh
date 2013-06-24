@@ -8,6 +8,9 @@ SERIAL_PORT=$1
 BASE_DIR=`pwd`
 NOW="`date +"%Y-%m-%d_%H-%M"`"
 
+EXP_NAME="external-loop-desc"
+SCRIPT_NAME="${0##*/}"
+
 freqs=(2400000 2133000 1867000 1600000)
 sizes=(30000 20000 10000)
 #fifteen, ten and five minutes.
@@ -54,13 +57,13 @@ create_dir_if_not_exists()
 #
 create_data_dir()
 {
-#   NOW="`date +"%Y-%m-%d_%H-%M"`"
-   #NOW="`date +"%Y-%m-%d"`"
-
    FILE="$BASE_DIR/results/"
    create_dir_if_not_exists $FILE
 
-   FILE="$BASE_DIR/results/$NOW/"
+   FILE="$FILE/$EXP_NAME"
+   create_dir_if_not_exists $FILE$
+
+   FILE="$FILE/$NOW/"
    create_dir_if_not_exists $FILE
 
    FILE="$FILE/$4"
@@ -79,7 +82,7 @@ start_meter_logging()
 	if [ "$w_pid" -eq "0" ] 		
 	then
 		create_data_dir $1 $2 $3 $4
-		output_file="$BASE_DIR/results/$NOW/$4/$1/$2/$3.csv"
+		output_file="$BASE_DIR/results/$EXP_NAME/$NOW/$4/$1/$2/$3.csv"
 		eval "(java -cp .:$BASE_DIR/lib/wattsupj-1.0.0-SNAPSHOT.jar -Dexport.file.path=$output_file wattsup.console.Console $SERIAL_PORT) &"
 		w_pid=$!
 	fi
@@ -100,7 +103,7 @@ transpose()
 commit()
 {
    echo "`git add .`"
-   echo "`git commit -am "experiment cpu frequency:$1, sleep time:$2, matrix size:$3, iter:$4"`"
+   echo "`git commit -am "experiment($SCRIPT_NAME) cpu frequency:$1, sleep time:$2, matrix size:$3, iter:$4"`"
    echo "`git push origin master`"
 }
 

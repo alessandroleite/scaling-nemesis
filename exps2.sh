@@ -1,12 +1,13 @@
 #!/bin/bash
 
 ##################################################################
-#						Global Variables						 #
+#		      Global Variables				 #
 ##################################################################
 #Delay time between the experiments in seconds
 DEFAULT_SLEEP_TIME=60
 BASE_DIR=`pwd`
-W_PORT="/dev/ttyUSB2"
+SERIAL_PORT=$1
+EXP_NAME=""
 
 #available CPU frequencies
 cpu_freqs=(2400000 2133000 1867000 1600000)
@@ -144,7 +145,7 @@ experiments()
      do
        for ((j=0; j < l_sizes; j++))
        do
-	      echo "f:${cpu_freqs[i]} m:${m_sizes[j]} t:${s_times[k]}"
+	  echo "f:${cpu_freqs[i]} m:${m_sizes[j]} t:${s_times[k]}"
           run_experiment ${cpu_freqs[i]} ${m_sizes[j]} ${s_times[k]}
           sleep $DEFAULT_SLEEP_TIME
           finish_meter_logging
