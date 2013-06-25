@@ -103,7 +103,7 @@ transpose()
 commit()
 {
    echo "`git add .`"
-   echo "`git commit -am "experiment($SCRIPT_NAME) cpu frequency:$1, sleep time:$2, matrix size:$3,$4"`"
+   echo "`git commit -am "experiment($SCRIPT_NAME) cpu frequency:$1, matrix size:$2, sleep time:$3, number of iterations:$4"`"
    echo "`git push origin master`"
 }
 
