@@ -1891,3 +1891,36 @@ That's all folks!
 Thu Jun 27 05:23:26 CEST 2013
 
 all-exps.sh:Set the CPU frequency to 2.4 GHz; creates a matrix_(30,000 x 30,000), sleep for 12 hours and after that transpose the matrix one time.
+   Time values: 43200
+  Matrix sizes: 30000
+[3;J[H[2JPower consumption experiments
+Today is Thu Jun 27 05:23:36 CEST 2013.
+
+This is Linux running on a x86_64 processor.
+
+This is the uptime information:
+ 05:23:36 up 2 days, 21:04,  5 users,  load average: 0.21, 0.29, 0.59
+
+CPU frequencies: 2400000
+Matrices sizes: 30000
+  Times values: 43200
+Setting cpu: 0
+Setting cpu: 1
+Setting cpu: 2
+Setting cpu: 3
+w_pid -> 3641
+f:2400000 m:30000 t:43200 iter:1 2013-06-27 05:23:37
+Going to sleep
+I am awake
+2013-06-27 17:28:34
+
+process 3641 killed
+
+[master 0edb794] experiment(exps4.sh) cpu frequency:2400000, sleep time:30000, matrix size:43200,1
+ 2 files changed, 45502 insertions(+)
+ create mode 100644 results/long-sleep/2013-06-27_05-23/1/2400000/30000/43200.csv
+
+That's all folks!
+Thu Jun 27 17:30:50 CEST 2013
+
+all-exps.sh:The same as the script 3 but with the data in descending order.
