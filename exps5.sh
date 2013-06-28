@@ -61,7 +61,7 @@ create_data_dir()
    create_dir_if_not_exists $FILE
 
    FILE="$FILE/$EXP_NAME"
-   create_dir_if_not_exists $FILE$
+   create_dir_if_not_exists $FILE
 
    FILE="$FILE/$NOW/"
    create_dir_if_not_exists $FILE
