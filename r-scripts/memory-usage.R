@@ -4,7 +4,7 @@ library(RMySQL)
 args<-commandArgs(TRUE)
 
 # Connecting to MySQL
-db <- dbConnect(MySQL(), user='resource_monitor', password='resource_monitor', dbname='resource_monitor', host='ec2-23-21-211-172.compute-1.amazonaws.com')
+db <- dbConnect(MySQL(), user='', password='', dbname='resource_monitor', host='ec2-23-21-211-172.compute-1.amazonaws.com')
 #close the connection in the end of the session if not closed explictly
 on.exit(dbDisconnect(db))
 
